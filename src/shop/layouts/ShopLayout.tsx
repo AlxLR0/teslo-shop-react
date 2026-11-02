@@ -1,14 +1,18 @@
 import { Outlet } from "react-router"
+import { CustomHeader } from "../components/CustomHeader"
+import { CustomFooter } from "../components/CustomFooter"
 
 export const ShopLayout = () => {
   return (
     <div>
-      <h1 className="text-3xl font-bold underline">
-        ShopLayout
+      <div className="min-h-screen bg-background">
+        <CustomHeader />
 
-      </h1>
+        <Outlet />
 
-      <Outlet/>
+        <CustomFooter />
       </div>
+
+    </div>
   )
 }
