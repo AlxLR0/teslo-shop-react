@@ -2,8 +2,40 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { useSearchParams } from "react-router";
 
 export const FilterSidebar = () => {
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const currentSizes = searchParams.get('sizes')?.split(',').filter(Boolean) || [];
+
+  const currentPrice = searchParams.get('price') || 'any';
+
+  const handleSizeChanged = (size:string)=>{
+    const newSizes = currentSizes.includes(size)
+    ?currentSizes.filter(s=>s!==size)
+    :[...currentSizes, size];
+
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('page', '1');
+    if (newSizes.length > 0) {
+      newSearchParams.set('sizes', newSizes.join(','));
+    } else {
+      newSearchParams.delete('sizes');
+    }
+    setSearchParams(newSearchParams);
+
+  }
+
+  const handlePriceChanged = (price:string)=>{
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('page', '1');
+    newSearchParams.set('price', price);
+    setSearchParams(newSearchParams);
+  }
+
+
 
   const sizes = [
     { id: "xs", label: "XS" },
@@ -27,9 +59,10 @@ export const FilterSidebar = () => {
           {sizes.map((size) => (
             <Button
               key={size.id}
-              variant="outline"
+              variant={currentSizes.includes(size.id) ? 'default' : 'outline'}
               size="sm"
               className="h-8"
+              onClick={() => handleSizeChanged(size.id)}
             >
               {size.label}
             </Button>
@@ -42,7 +75,11 @@ export const FilterSidebar = () => {
       {/* Price Range */}
       <div className="space-y-4">
         <h4 className="font-medium">Precio</h4>
-        <RadioGroup defaultValue="" className="space-y-3">
+        <RadioGroup
+          value={currentPrice}
+          onValueChange={handlePriceChanged}
+          className="space-y-3"
+        >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="any" id="priceAny" />
             <Label htmlFor="priceAny" className="text-sm cursor-pointer">Cualquier precio</Label>
@@ -68,4 +105,3 @@ export const FilterSidebar = () => {
     </div>
   );
 };
-
