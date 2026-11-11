@@ -96,7 +96,7 @@ export const AdminSidebar: React.FC<SidebarProps> = ({
         <div className="p-4 border-t border-gray-200">
           <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-              {user?.fullName?.charAt(0) || 'JD'}
+              {user?.fullName?.charAt(0).toUpperCase() || 'JD'}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">

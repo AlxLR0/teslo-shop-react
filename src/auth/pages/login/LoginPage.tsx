@@ -27,6 +27,7 @@ export const LoginPage =() =>{
     const isValid =await login(email, password);
     if(isValid){
       navigate("/");
+      toast.success('Bienvenido de nuevo');
       return;
     }
 
