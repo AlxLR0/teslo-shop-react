@@ -22,13 +22,11 @@ export const CustomHeader = () => {
     const handleSearch = (event: KeyboardEvent<HTMLInputElement>)=>{
         if (event.key !== 'Enter') return;
 
-        const query = inputRef.current?.value;
+        const query = inputRef.current?.value.trim().toLowerCase();
         const newSearchParams = new URLSearchParams();
 
-        if (!query){
-            newSearchParams.delete('query');
-        } else {
-            newSearchParams.set('query',inputRef.current!.value);
+        if (query) {
+            newSearchParams.set('query', query);
         }
 
 

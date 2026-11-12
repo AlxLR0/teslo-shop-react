@@ -1,8 +1,27 @@
-import React from 'react';
+import React, { useRef, type KeyboardEvent } from 'react';
 import { Search, Bell, MessageSquare, Settings } from 'lucide-react';
 import { useAuthStore } from '@/auth/store/auth.store';
+import { useNavigate } from 'react-router';
 
 export const AdminHeader: React.FC = () => {
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+
+  const handleSearch = (event: KeyboardEvent<HTMLInputElement>)=>{
+    if(event.key !=='Enter') return;
+
+    const query = inputRef.current?.value.trim().toLowerCase();
+
+    if (!query) {
+      navigate('/admin/products');
+      return;
+    }
+
+    const searchParams = new URLSearchParams({ query });
+    navigate(`/admin/products?${searchParams}`);
+  };
+
 
   const { user } = useAuthStore();
   return (
@@ -16,6 +35,8 @@ export const AdminHeader: React.FC = () => {
               size={20}
             />
             <input
+              ref={inputRef}
+              onKeyDown={ handleSearch }
               type="text"
               placeholder="Search..."
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
