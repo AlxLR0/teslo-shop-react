@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 
 import { useForm } from 'react-hook-form';
@@ -17,10 +17,14 @@ interface Props {
   isPending: boolean;
 
   // Methods
-  onSubmit: (productLike: Partial<Product>) => Promise<void>;
+  onSubmit: (productLike: Partial<Product>& {files?:File[]}) => Promise<void>;
 }
 
-const availableSizes: Size[] = ['XS', 'S', 'M', 'L', 'XL', 'XXl'];
+const availableSizes: Size[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+interface FormInputs extends Product {
+  files?: File[];
+}
 
 export const ProductForm = ({
   title,
@@ -33,19 +37,25 @@ export const ProductForm = ({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitSuccessful },
     getValues,
     setValue,
     watch,
-  } = useForm({
+  } = useForm<FormInputs>({
     defaultValues: product,
   });
 
   const labelInputRef = useRef<HTMLInputElement>(null);
+  const [files,setFiles] = useState<File[]>([]);
+
+  useEffect(()=>{
+    setFiles([]);
+  }, [product]);
 
   const selectedSizes = watch('sizes');
   const selectedTags = watch('tags');
   const currentStock = watch('stock');
+  const currentImages = watch('images') || [];
 
   const addTag = () => {
     const newTag = labelInputRef.current!.value;
@@ -74,6 +84,14 @@ export const ProductForm = ({
     setValue('sizes', Array.from(sizeSet));
   };
 
+  const removeImage = (image: string) => {
+    setValue(
+      'images',
+      getValues('images').filter((currentImage) => currentImage !== image),
+      { shouldDirty: true }
+    );
+  };
+
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -89,12 +107,24 @@ export const ProductForm = ({
     e.stopPropagation();
     setDragActive(false);
     const files = e.dataTransfer.files;
-    console.log(files);
-  };
+    
+    if (!files) return;
+  
+    setFiles((prev)=>[...prev,...Array.from(files)]);
 
+    const currentFiles = getValues('files') || [];
+    setValue('files',[...currentFiles ,...Array.from(files)]);
+  };
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    console.log(files);
+    if (!files) return;
+    
+    setFiles((prev)=>[...prev,...Array.from(files)]);
+    
+    const currentFiles = getValues('files') || [];
+    setValue('files',[...currentFiles ,...Array.from(files)]);
+
   };
 
   return (
@@ -105,13 +135,27 @@ export const ProductForm = ({
           <Button variant="outline" type="button">
             <Link to="/admin/products" className="flex items-center gap-2">
               <X className="w-4 h-4" />
-              Cancelar
+              {isSubmitSuccessful ? 'Salir' : 'Cancelar'}
             </Link>
           </Button>
 
-          <Button type="submit" disabled={isPending}>
+          <Button
+            type="submit"
+            disabled={isPending}
+            aria-label={isPending ? 'Guardando cambios' : undefined}
+          >
             <SaveAll className="w-4 h-4" />
-            Guardar cambios
+            <span className="relative inline-flex items-center justify-center">
+              <span className={isPending ? 'invisible' : undefined}>
+                Guardar cambios
+              </span>
+              {isPending && (
+                <span
+                  aria-hidden="true"
+                  className="absolute h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+                />
+              )}
+            </span>
           </Button>
         </div>
       </div>
@@ -421,8 +465,8 @@ export const ProductForm = ({
                   Imágenes actuales
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
-                  {product.images.map((image, index) => (
-                    <div key={index} className="relative group">
+                  {currentImages.map((image) => (
+                    <div key={image} className="relative group">
                       <div className="aspect-square bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center">
                         <img
                           src={image}
@@ -430,7 +474,12 @@ export const ProductForm = ({
                           className="w-full h-full object-cover rounded-lg"
                         />
                       </div>
-                      <button className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <button
+                        type="button"
+                        aria-label="Quitar imagen del producto"
+                        onClick={() => removeImage(image)}
+                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      >
                         <X className="h-3 w-3" />
                       </button>
                       <p className="mt-1 text-xs text-slate-600 truncate">
@@ -438,6 +487,27 @@ export const ProductForm = ({
                       </p>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* imagenes por cargar */}
+              <div className={cn('mt-6 space-y-3',{
+                'hidden':files.length===0,
+              })}>
+                <h3 className="text-sm font-medium text-slate-700">
+                  Imágenes por cargar
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {
+                    files.map((file,index) =>(
+                       <img
+                          src={URL.createObjectURL(file)}
+                          alt="Product"
+                          key={index}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                    ))
+                  }
                 </div>
               </div>
             </div>
@@ -484,7 +554,7 @@ export const ProductForm = ({
                     Imágenes
                   </span>
                   <span className="text-sm text-slate-600">
-                    {product.images.length} imágenes
+                    {currentImages.length} imágenes
                   </span>
                 </div>
 
