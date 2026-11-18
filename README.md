@@ -1,54 +1,134 @@
-# React + TypeScript + Vite
+# Teslo Shop
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Bienvenido a **Teslo Shop**, una tienda online inspirada en Teslo con estilo moderno, navegación rápida y un panel de administración listo para gestionar el catálogo.
 
-Currently, two official plugins are available:
+Explora productos, filtra por categoría, talla y precio, busca tu próximo favorito y administra el inventario desde una interfaz pensada para usar sin complicaciones.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Prueba la app
 
-## Expanding the ESLint configuration
+Entra directamente a la tienda:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+**[Visitar Teslo Shop](https://teslo-shop-style.netlify.app/)**
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## ✨ Qué ofrece
+
+### Tienda
+
+- Catálogo completo de productos
+- Navegación por hombres, mujeres y niños
+- Buscador compatible con mayúsculas y minúsculas
+- Filtros por talla y rango de precio
+- Paginación
+- Vista detallada de cada producto
+- Inicio de sesión y registro de usuarios
+- Acceso al panel según el rol del usuario
+
+### Administración
+
+- Panel con resumen general
+- Lista completa de productos
+- Buscador de productos
+- Creación y edición de productos
+- Gestión de nombre, precio, inventario, género, tallas y etiquetas
+- Carga de imágenes
+- Eliminación visual de imágenes asociadas a un producto
+- Estados de carga al guardar cambios
+
+## 🛠️ Tecnologías
+
+- React 19
+- TypeScript
+- Vite
+- React Router
+- TanStack Query
+- Zustand
+- React Hook Form
+- Axios
+- Tailwind CSS
+- shadcn/ui
+- Lucide React
+- Sonner
+
+## 🗂️ Rutas principales
+
+| Ruta | Descripción |
+| --- | --- |
+| `/` | Página principal y catálogo |
+| `/gender/men` | Productos para hombres |
+| `/gender/women` | Productos para mujeres |
+| `/gender/kid` | Productos para niños |
+| `/product/:idSlug` | Detalle de producto |
+| `/auth/login` | Inicio de sesión |
+| `/auth/register` | Registro |
+| `/admin` | Panel de administración |
+| `/admin/products` | Gestión de productos |
+| `/admin/products/:id` | Edición de producto |
+
+## 📦 Instalación local
+
+Requisitos:
+
+- Node.js 18 o superior
+- npm
+
+Clona el proyecto y entra en la carpeta:
+
+```bash
+git clone <URL_DEL_REPOSITORIO>
+cd teslo-shop-react
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Instala las dependencias:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+npm install
 ```
+
+Crea el archivo de entorno a partir de la plantilla:
+
+```bash
+cp .env.template .env
+```
+
+En Windows PowerShell puedes crearla así:
+
+```powershell
+Copy-Item .env.template .env
+```
+
+Configura la API:
+
+```env
+VITE_API_URL=http://localhost:3000/api
+```
+
+Inicia el proyecto:
+
+```bash
+npm run dev
+```
+
+Abre la dirección que muestre Vite, normalmente:
+
+```text
+http://localhost:5173
+```
+
+## 🧪 Comandos disponibles
+
+```bash
+npm run dev
+npm run build
+npm run lint
+npm run preview
+```
+
+## 📁 Organización básica
+
+- `src/shop`: tienda, filtros, catálogo y detalle de productos
+- `src/admin`: dashboard y administración de productos
+- `src/auth`: login, registro y manejo de autenticación
+- `src/components`: componentes compartidos
+- `src/api`: configuración de Axios
+- `src/lib`: utilidades comunes
+- `src/interfaces`: tipos principales de datos
