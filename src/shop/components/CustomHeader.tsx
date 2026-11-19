@@ -1,7 +1,7 @@
-import { Search } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {useRef, type KeyboardEvent } from "react";
+import {useRef, useState, type KeyboardEvent } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import { cn } from "@/lib/utils";
 import { CustomLogo } from "@/components/custom/CustomLogo";
@@ -14,6 +14,7 @@ export const CustomHeader = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const {authStatus, isAdmin, logout} = useAuthStore();
     const { gender }= useParams();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -35,10 +36,12 @@ export const CustomHeader = () => {
     }
 
     return <header className="sticky top-0 z-50 w-full border-b backdrop-blur bg-slate-50">
-        <div className="container mx-auto px-4 lg:px-8">
+        <div className="container mx-auto px-4 lg:px-8 relative">
             <div className="flex h-16 items-center justify-between gap-2">
                 {/* Logo */}
-                <CustomLogo/>
+                <div className="shrink-0">
+                    <CustomLogo/>
+                </div>
 
                 {/* Navigation - Desktop */}
                 <nav className="hidden md:flex items-center space-x-8">
@@ -57,25 +60,34 @@ export const CustomHeader = () => {
                 </nav>
 
                 {/* Search and Cart */}
-                <div className="flex shrink-0 items-center space-x-1 sm:space-x-4">
-                    <div className="hidden md:flex items-center space-x-2">
-                        <div className="relative">
+                <div className="flex min-w-0 flex-1 items-center space-x-1 sm:space-x-4 md:flex-none">
+                    <div className="flex flex-1 items-center md:flex-none">
+                        <div className="relative w-full">
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input ref={inputRef} placeholder="Buscar productos..." className="pl-9 w-64 h-9"
+                            <Input ref={inputRef} placeholder="Buscar productos..." className="pl-9 w-full md:w-64 h-9"
                                onKeyDown= {handleSearch} 
                                defaultValue={query}
                             />
                         </div>
                     </div>
 
-                    <Button variant="ghost" size="icon" className="md:hidden">
-                        <Search className="h-5 w-5" />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="md:hidden"
+                        aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
+                        aria-expanded={isMobileMenuOpen}
+                        onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
+                    >
+                        {isMobileMenuOpen
+                            ? <X className="h-5 w-5" />
+                            : <Menu className="h-5 w-5" />}
                     </Button>
 
                     {
                         authStatus === 'not-authenticated'?(
 
-                            <Link to="/auth/login">
+                            <Link to="/auth/login" className="hidden md:inline-flex">
                                 <Button variant="default" size="sm" className="ml-2">
                                     Login
                                 </Button>
@@ -83,7 +95,7 @@ export const CustomHeader = () => {
                         ):(
 
                             
-                                <Button onClick={logout} variant="outline" size="sm" className="ml-2">
+                                <Button onClick={logout} variant="outline" size="sm" className="ml-2 hidden md:inline-flex">
                                     Cerrar Sesión
                                 </Button>
                             
@@ -92,7 +104,7 @@ export const CustomHeader = () => {
 
                     {
                         isAdmin() &&(
-                            <Link to="/admin">
+                            <Link to="/admin" className="hidden md:inline-flex">
                                 <Button variant="secondary" size="sm" className="ml-2">
                                     Admin
                                 </Button>
@@ -103,6 +115,76 @@ export const CustomHeader = () => {
 
                 </div>
             </div>
+
+            {isMobileMenuOpen && (
+                <nav className="absolute left-0 right-0 top-full border-b bg-slate-50 px-4 py-4 shadow-md md:hidden">
+                    <div className="flex flex-col gap-2">
+                        <Link
+                            to="/"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={cn("rounded-md px-3 py-2 text-sm font-medium", !gender ? "bg-slate-200" : "")}
+                        >
+                            Todos
+                        </Link>
+                        <Link
+                            to="/gender/men"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={cn("rounded-md px-3 py-2 text-sm font-medium", gender === "men" ? "bg-slate-200" : "")}
+                        >
+                            Hombres
+                        </Link>
+                        <Link
+                            to="/gender/women"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={cn("rounded-md px-3 py-2 text-sm font-medium", gender === "women" ? "bg-slate-200" : "")}
+                        >
+                            Mujeres
+                        </Link>
+                        <Link
+                            to="/gender/kid"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={cn("rounded-md px-3 py-2 text-sm font-medium", gender === "kid" ? "bg-slate-200" : "")}
+                        >
+                            Niños
+                        </Link>
+
+                        {authStatus === "not-authenticated" ? (
+                            <Link
+                                to="/auth/login"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="mt-2"
+                            >
+                                <Button variant="default" size="sm" className="w-full">
+                                    Login
+                                </Button>
+                            </Link>
+                        ) : (
+                            <Button
+                                onClick={() => {
+                                    logout();
+                                    setIsMobileMenuOpen(false);
+                                }}
+                                variant="outline"
+                                size="sm"
+                                className="mt-2 w-full"
+                            >
+                                Cerrar Sesión
+                            </Button>
+                        )}
+
+                        {isAdmin() && (
+                            <Link
+                                to="/admin"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                                <Button variant="secondary" size="sm" className="mt-1 w-full">
+                                    Admin
+                                </Button>
+                            </Link>
+                        )}
+                    </div>
+                </nav>
+            )}
         </div>
     </header>;
 };

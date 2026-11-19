@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Filter, Grid, List } from 'lucide-react';
+import { Filter, Grid, List, X } from 'lucide-react';
 import { ProductCard } from '@/shop/components/productCard';
 import { FilterSidebar } from './FilterSidebar';
 import { useSearchParams } from 'react-router';
@@ -72,18 +72,29 @@ export const ProductsGrid = ({ products }: Props) => {
 
           {/* Mobile Filters */}
           {showFilters && (
-            <div className="fixed inset-0 z-50 bg-background p-4 lg:hidden">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold">Filtros</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowFilters(false)}
-                >
-                  Cerrar
-                </Button>
+            <div className="fixed inset-0 z-50 flex items-end bg-black/40 lg:hidden">
+              <button
+                type="button"
+                aria-label="Cerrar filtros"
+                className="absolute inset-0"
+                onClick={() => setShowFilters(false)}
+              />
+              <div className="relative w-full max-h-[85dvh] overflow-y-auto rounded-t-2xl bg-background shadow-2xl">
+                <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-background px-5 py-4">
+                  <h3 className="text-lg font-semibold">Filtros</h3>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Cerrar filtros"
+                    onClick={() => setShowFilters(false)}
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+                <div className="p-5 pb-8">
+                  <FilterSidebar />
+                </div>
               </div>
-              <FilterSidebar />
             </div>
           )}
 
