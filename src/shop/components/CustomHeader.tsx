@@ -1,7 +1,7 @@
 import { Menu, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {useRef, useState, type KeyboardEvent } from "react";
+import {useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import { cn } from "@/lib/utils";
 import { CustomLogo } from "@/components/custom/CustomLogo";
@@ -15,8 +15,38 @@ export const CustomHeader = () => {
     const {authStatus, isAdmin, logout} = useAuthStore();
     const { gender }= useParams();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isMobileMenuMounted, setIsMobileMenuMounted] = useState(false);
+    const menuCloseTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        return () => {
+            if (menuCloseTimeout.current) clearTimeout(menuCloseTimeout.current);
+        };
+    }, []);
+
+    const openMobileMenu = () => {
+        if (menuCloseTimeout.current) clearTimeout(menuCloseTimeout.current);
+        setIsMobileMenuMounted(true);
+        requestAnimationFrame(() => setIsMobileMenuOpen(true));
+    };
+
+    const closeMobileMenu = () => {
+        setIsMobileMenuOpen(false);
+        menuCloseTimeout.current = setTimeout(() => {
+            setIsMobileMenuMounted(false);
+            menuCloseTimeout.current = null;
+        }, 200);
+    };
+
+    const toggleMobileMenu = () => {
+        if (isMobileMenuOpen) {
+            closeMobileMenu();
+        } else {
+            openMobileMenu();
+        }
+    };
 
     const query = searchParams.get('query') || '';
 
@@ -77,7 +107,7 @@ export const CustomHeader = () => {
                         className="md:hidden"
                         aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
                         aria-expanded={isMobileMenuOpen}
-                        onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
+                        onClick={toggleMobileMenu}
                     >
                         {isMobileMenuOpen
                             ? <X className="h-5 w-5" />
@@ -116,33 +146,38 @@ export const CustomHeader = () => {
                 </div>
             </div>
 
-            {isMobileMenuOpen && (
-                <nav className="absolute left-0 right-0 top-full border-b bg-slate-50 px-4 py-4 shadow-md md:hidden">
+            {isMobileMenuMounted && (
+                <nav className={cn(
+                    "absolute left-0 right-0 top-full border-b bg-slate-50 px-4 py-4 shadow-md transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none md:hidden",
+                    isMobileMenuOpen
+                        ? "translate-y-0 opacity-100"
+                        : "-translate-y-2 pointer-events-none opacity-0"
+                )}>
                     <div className="flex flex-col gap-2">
                         <Link
                             to="/"
-                            onClick={() => setIsMobileMenuOpen(false)}
+                            onClick={closeMobileMenu}
                             className={cn("rounded-md px-3 py-2 text-sm font-medium", !gender ? "bg-slate-200" : "")}
                         >
                             Todos
                         </Link>
                         <Link
                             to="/gender/men"
-                            onClick={() => setIsMobileMenuOpen(false)}
+                            onClick={closeMobileMenu}
                             className={cn("rounded-md px-3 py-2 text-sm font-medium", gender === "men" ? "bg-slate-200" : "")}
                         >
                             Hombres
                         </Link>
                         <Link
                             to="/gender/women"
-                            onClick={() => setIsMobileMenuOpen(false)}
+                            onClick={closeMobileMenu}
                             className={cn("rounded-md px-3 py-2 text-sm font-medium", gender === "women" ? "bg-slate-200" : "")}
                         >
                             Mujeres
                         </Link>
                         <Link
                             to="/gender/kid"
-                            onClick={() => setIsMobileMenuOpen(false)}
+                            onClick={closeMobileMenu}
                             className={cn("rounded-md px-3 py-2 text-sm font-medium", gender === "kid" ? "bg-slate-200" : "")}
                         >
                             Niños
@@ -151,7 +186,7 @@ export const CustomHeader = () => {
                         {authStatus === "not-authenticated" ? (
                             <Link
                                 to="/auth/login"
-                                onClick={() => setIsMobileMenuOpen(false)}
+                                onClick={closeMobileMenu}
                                 className="mt-2"
                             >
                                 <Button variant="default" size="sm" className="w-full">
@@ -162,7 +197,7 @@ export const CustomHeader = () => {
                             <Button
                                 onClick={() => {
                                     logout();
-                                    setIsMobileMenuOpen(false);
+                                    closeMobileMenu();
                                 }}
                                 variant="outline"
                                 size="sm"

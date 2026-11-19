@@ -50,7 +50,7 @@ export const AdminSidebar: React.FC<SidebarProps> = ({
 
   return (
     <div
-      className={`sticky top-0 h-screen shrink-0 bg-white border-r border-gray-200 transition-all duration-300 ease-in-out  ${
+      className={`self-start shrink-0 bg-gray-50 md:bg-white md:border-r md:border-gray-200 transition-all duration-300 ease-in-out md:sticky md:top-0 md:h-screen md:self-stretch ${
         isCollapsed ? 'w-18' : 'w-64'
       } flex flex-col`}
     >
